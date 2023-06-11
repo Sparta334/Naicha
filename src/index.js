@@ -1,5 +1,6 @@
 const { Client, IntentsBitField } = require('discord.js');
-
+const { EmbedBuilder  } = require('discord.js');
+require('dotenv').config();
 const client = new Client({
 
     intents: [
@@ -12,10 +13,18 @@ const client = new Client({
 
 });
 
+
+const channelID = '811818451873562636';
+
+//#region 啟動訊息
+
 client.on('ready', (message) => {
     console.log("online")
 })
 
+//#endregion
+
+//#region 偵測訊息
 
 client.on('messageCreate', (message) => {
 
@@ -23,19 +32,56 @@ client.on('messageCreate', (message) => {
 
 })
 
+//#endregion
+
+//#region 偵測語音
+
+
 client.on('voiceStateUpdate', (oldState, newState) => {
+    
     const member = newState.member;
     const channel = newState.channel;
+    const textChannel = member.guild.channels.cache.get(channelID); // 獲取指定 ID 的文本頻道
 
-    if (channel) {
-        console.log(`${member.displayName} 進入了語音頻道 ${channel.name}`);
-        // 在此處執行進入語音頻道後的相關操作
-    } else {
-        console.log(`${member.displayName} 離開了語音頻道`);
-        // 在此處執行離開語音頻道後的相關操作
+
+
+
+
+
+    if (channel) { 
+      
+      const embed = new EmbedBuilder()
+      .setColor(0x99FF00)
+      .setAuthor({ name: member.displayName, iconURL: member.user.displayAvatarURL()})
+      .setDescription('加入語音房間')
+      .addFields({ name: '**頻道**', value: `**${channel.name}**`, inline: true })
+      .setFooter( { text: `加入時間：${member.joinedAt.toLocaleString()}`});
+
+      // 在此處執行進入語音頻道後的其他相關操作
+      textChannel.send({ embeds: [embed] });
     }
+    else
+    {
+        
+        const embed = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setAuthor({ name: member.displayName, iconURL: member.user.displayAvatarURL()})
+        .setDescription('離開語音房間')
+        .setFooter( { text: `離開時間：${member.joinedAt.toLocaleString()}`});
+
+        const textChannel = member.guild.channels.cache.get(channelID); // 獲取指定 ID 的文本頻道
+
+        if (textChannel) {
+            textChannel.send({ embeds: [embed] });
+        // 在此處執行離開語音頻道後的其他相關操作
+        }
+    }   
 });
 
 
 
-client.login("MTExNzQ1MzM1MzA5ODY5NDY3Ng.GJ9KcF.SiXR7fSmExEXMy6kfGjj-W6DeA1S4O56vzjun4")
+
+
+//#endregion
+
+client.login(process.env.TOKEN)  
