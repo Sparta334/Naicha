@@ -84,4 +84,4 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 
 //#endregion
 
-client.login(process.env.TOKEN)  
+client.login(process.env.PUBLIC_KEY)  
